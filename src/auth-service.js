@@ -1,32 +1,65 @@
-// Authentication Service
+// Authentication Service for Predipto
+// Handles user authentication, registration, profile management, and admin access control
+// Uses Firebase Authentication and Firestore for user data storage
 import { initializeFirebase } from '../firebase-config.js';
 
+/**
+ * AuthService class
+ * 
+ * Provides authentication and user management functionality for the application.
+ * Handles user registration, login, logout, profile management, and admin access control.
+ * Uses Firebase Authentication for identity management and Firestore for user profile data.
+ */
 class AuthService {
+  /**
+   * Constructor
+   * 
+   * Initializes the AuthService with Firebase auth and Firestore instances.
+   * Sets up an auth state listener to track user login status changes.
+   */
   constructor() {
     const { auth, firestore } = initializeFirebase();
     this.auth = auth;
     this.firestore = firestore;
     this.currentUser = null;
     
-    // Initialize auth state
+    // Initialize auth state listener to track user login status
     this.auth.onAuthStateChanged(user => {
       this.currentUser = user;
-      // Dispatch event for components to react
+      // Dispatch custom event for components to react to auth state changes
       window.dispatchEvent(new CustomEvent('authStateChanged', { detail: { user } }));
     });
   }
   
-  // Get current user
+  /**
+   * Get current authenticated user
+   * 
+   * @returns {Object|null} The current Firebase user object or null if not logged in
+   */
   getCurrentUser() {
     return this.currentUser;
   }
   
-  // Check if user is logged in
+  /**
+   * Check if a user is currently logged in
+   * 
+   * @returns {boolean} True if user is logged in, false otherwise
+   */
   isLoggedIn() {
     return !!this.currentUser;
   }
   
-  // Register a new user
+  /**
+   * Register a new user
+   * 
+   * Creates a new user account with Firebase Authentication and
+   * creates the corresponding user profile document in Firestore.
+   * 
+   * @param {string} email - User's email address
+   * @param {string} password - User's password
+   * @param {string} [displayName] - Optional display name (defaults to email username)
+   * @returns {Object} Object with success status and user data or error message
+   */
   async register(email, password, displayName) {
     try {
       // Create user in Firebase Auth
@@ -49,7 +82,15 @@ class AuthService {
     }
   }
   
-  // Login user
+  /**
+   * Login user with email and password
+   * 
+   * Authenticates a user with Firebase Authentication.
+   * 
+   * @param {string} email - User's email address
+   * @param {string} password - User's password
+   * @returns {Object} Object with success status and user data or error message
+   */
   async login(email, password) {
     try {
       const userCredential = await this.auth.signInWithEmailAndPassword(email, password);
@@ -60,7 +101,13 @@ class AuthService {
     }
   }
   
-  // Logout user
+  /**
+   * Logout current user
+   * 
+   * Signs out the currently authenticated user from Firebase.
+   * 
+   * @returns {Object} Object with success status or error message
+   */
   async logout() {
     try {
       await this.auth.signOut();
@@ -71,7 +118,14 @@ class AuthService {
     }
   }
   
-  // Get user profile data
+  /**
+   * Get user profile data from Firestore
+   * 
+   * Retrieves the user profile document from the Firestore database.
+   * 
+   * @param {string} [userId] - Optional user ID (defaults to current user)
+   * @returns {Object} Object with success status and profile data or error message
+   */
   async getUserProfile(userId) {
     try {
       const doc = await this.firestore.collection('users').doc(userId || this.currentUser.uid).get();
@@ -86,7 +140,14 @@ class AuthService {
     }
   }
   
-  // Update user profile
+  /**
+   * Update user profile data
+   * 
+   * Updates the current user's profile document in Firestore.
+   * 
+   * @param {Object} profileData - Object containing profile fields to update
+   * @returns {Object} Object with success status or error message
+   */
   async updateProfile(profileData) {
     if (!this.currentUser) {
       return { success: false, error: 'User not logged in' };
@@ -101,7 +162,13 @@ class AuthService {
     }
   }
   
-  // Check if user is admin
+  /**
+   * Check if current user has admin privileges
+   * 
+   * Retrieves the user profile and checks the isAdmin flag.
+   * 
+   * @returns {boolean} True if user is an admin, false otherwise
+   */
   async isAdmin() {
     if (!this.currentUser) {
       return false;

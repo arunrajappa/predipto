@@ -1,14 +1,38 @@
-// Data Service for Predictions, Results and Leaderboard
+// Data Service for Predipto
+// Handles all data operations related to predictions, match results, points calculation, and leaderboard
+// Uses Firebase Firestore for data storage and retrieval
 import { initializeFirebase } from '../firebase-config.js';
 import { authService } from './auth-service.js';
 
+/**
+ * DataService class
+ * 
+ * Provides methods to interact with the application's data layer.
+ * Handles predictions, match results, points calculation, and leaderboard functionality.
+ * Uses Firebase Firestore as the backend database.
+ */
 class DataService {
+  /**
+   * Constructor
+   * 
+   * Initializes the service with a Firestore instance from Firebase.
+   */
   constructor() {
     const { firestore } = initializeFirebase();
     this.firestore = firestore;
   }
   
-  // Save a user's prediction for a match
+  /**
+   * Save a user's prediction for a match
+   * 
+   * Creates a new prediction or updates an existing one in the database.
+   * Requires the user to be authenticated.
+   * 
+   * @param {number|string} matchId - ID of the match being predicted
+   * @param {number} homeScore - Predicted score for the home team
+   * @param {number} awayScore - Predicted score for the away team
+   * @returns {Object} Object with success status or error message
+   */
   async savePrediction(matchId, homeScore, awayScore) {
     if (!authService.isLoggedIn()) {
       return { success: false, error: 'User not logged in' };
@@ -47,7 +71,16 @@ class DataService {
     }
   }
   
-  // Get a user's prediction for a match
+  /**
+   * Get a user's prediction for a specific match
+   * 
+   * Retrieves a user's prediction for a given match from the database.
+   * If userId is not provided, uses the currently authenticated user.
+   * 
+   * @param {number|string} matchId - ID of the match
+   * @param {string} [userId=null] - Optional user ID (defaults to current user)
+   * @returns {Object} Object with success status and prediction data or error message
+   */
   async getPrediction(matchId, userId = null) {
     if (!userId && !authService.isLoggedIn()) {
       return { success: false, error: 'User not logged in' };
@@ -70,7 +103,15 @@ class DataService {
     }
   }
   
-  // Get all predictions for a user
+  /**
+   * Get all predictions for a user
+   * 
+   * Retrieves all predictions made by a specific user.
+   * If userId is not provided, uses the currently authenticated user.
+   * 
+   * @param {string} [userId=null] - Optional user ID (defaults to current user)
+   * @returns {Object} Object with success status and array of predictions or error message
+   */
   async getUserPredictions(userId = null) {
     if (!userId && !authService.isLoggedIn()) {
       return { success: false, error: 'User not logged in' };
@@ -92,10 +133,21 @@ class DataService {
     }
   }
   
-  // Save a match result (admin only)
+  /**
+   * Save a match result (admin only)
+   * 
+   * Records the actual result of a match in the database.
+   * Only users with admin privileges can perform this action.
+   * After saving the result, updates points for all users who made predictions.
+   * 
+   * @param {number|string} matchId - ID of the match
+   * @param {number} homeScore - Actual score for the home team
+   * @param {number} awayScore - Actual score for the away team
+   * @returns {Object} Object with success status or error message
+   */
   async saveMatchResult(matchId, homeScore, awayScore) {
     try {
-      // In a real app, we would check if user is admin here
+      // Check if user has admin privileges
       const isAdmin = await authService.isAdmin();
       
       if (!isAdmin) {
@@ -120,7 +172,14 @@ class DataService {
     }
   }
   
-  // Get a match result
+  /**
+   * Get a match result
+   * 
+   * Retrieves the recorded result for a specific match.
+   * 
+   * @param {number|string} matchId - ID of the match
+   * @returns {Object} Object with success status and result data or error message
+   */
   async getMatchResult(matchId) {
     try {
       const doc = await this.firestore.collection('results').doc(matchId.toString()).get();
@@ -136,7 +195,20 @@ class DataService {
     }
   }
   
-  // Calculate points for a prediction
+  /**
+   * Calculate points for a prediction
+   * 
+   * Determines how many points a user earns based on their prediction and the actual result.
+   * Points are awarded as follows:
+   * - 20 points for exact score match
+   * - 15 points for correct goal difference
+   * - 10 points for correct winner/draw
+   * - -10 points for completely wrong prediction
+   * 
+   * @param {Object} prediction - User's prediction object
+   * @param {Object} result - Actual match result object
+   * @returns {number} Points earned for the prediction
+   */
   calculatePoints(prediction, result) {
     if (!prediction || !result) return 0;
     
@@ -170,7 +242,17 @@ class DataService {
     return -10;
   }
   
-  // Update points for all users who predicted a match
+  /**
+   * Update points for all users who predicted a match
+   * 
+   * Calculates and records points for all users who made predictions for a specific match.
+   * Called automatically after saving a match result.
+   * 
+   * @param {number|string} matchId - ID of the match
+   * @param {number} homeScore - Actual score for the home team
+   * @param {number} awayScore - Actual score for the away team
+   * @returns {Object} Object with success status or error message
+   */
   async updatePointsForMatch(matchId, homeScore, awayScore) {
     try {
       // Get all predictions for this match
@@ -209,7 +291,15 @@ class DataService {
     }
   }
   
-  // Update a user's total points
+  /**
+   * Update a user's total points
+   * 
+   * Calculates and updates the total points for a specific user.
+   * Sums all points earned across all matches and updates the user's profile.
+   * 
+   * @param {string} userId - ID of the user
+   * @returns {Object} Object with success status, total points, or error message
+   */
   async updateUserTotalPoints(userId) {
     try {
       // Get all points for this user
@@ -235,7 +325,16 @@ class DataService {
     }
   }
   
-  // Get points for a specific match and user
+  /**
+   * Get points for a specific match and user
+   * 
+   * Retrieves the points earned by a user for a specific match.
+   * If userId is not provided, uses the currently authenticated user.
+   * 
+   * @param {number|string} matchId - ID of the match
+   * @param {string} [userId=null] - Optional user ID (defaults to current user)
+   * @returns {Object} Object with success status and points data or error message
+   */
   async getPointsForMatch(matchId, userId = null) {
     if (!userId && !authService.isLoggedIn()) {
       return { success: false, error: 'User not logged in' };
@@ -258,7 +357,14 @@ class DataService {
     }
   }
   
-  // Get leaderboard (top users by points)
+  /**
+   * Get leaderboard (top users by points)
+   * 
+   * Retrieves a sorted list of users ranked by their total points.
+   * 
+   * @param {number} [limit=10] - Maximum number of users to include in the leaderboard
+   * @returns {Object} Object with success status and leaderboard data or error message
+   */
   async getLeaderboard(limit = 10) {
     try {
       // In a real app with a proper database, we would use a query like:

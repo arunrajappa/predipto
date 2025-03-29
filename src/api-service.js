@@ -1,10 +1,23 @@
-// Football API Service
-// Uses the Football-Data.org API (https://www.football-data.org/)
+// Football API Service for Predipto
+// Provides access to football match data via the Football-Data.org API
+// Includes fallback mock data for development and when API limits are reached
 
+/**
+ * API key for Football-Data.org
+ * Replace with your actual API key for production use
+ * @see https://www.football-data.org/ to register for an API key
+ */
 const API_KEY = 'YOUR_API_KEY'; // Replace with your actual API key
+
+/**
+ * Base URL for the Football-Data.org API v4
+ */
 const API_BASE_URL = 'https://api.football-data.org/v4';
 
-// Fallback data in case API calls fail or rate limits are reached
+/**
+ * Fallback data for offline development and when API limits are reached
+ * Contains mock competitions and matches that mimic the structure of the real API
+ */
 const FALLBACK_DATA = {
   competitions: [
     { id: 2000, name: "FIFA World Cup", code: "WC", emblem: "https://crests.football-data.org/qatar.png" },
@@ -97,12 +110,31 @@ const FALLBACK_DATA = {
   ]
 };
 
+/**
+ * FootballApiService class
+ * 
+ * Provides methods to interact with the Football-Data.org API
+ * Includes fallback to mock data when API is unavailable or rate limits are reached
+ */
 class FootballApiService {
+  /**
+   * Constructor
+   * 
+   * Initializes the service with a flag to determine whether to use the real API
+   * Set useRealApi to true when you have a valid API key
+   */
   constructor() {
     this.useRealApi = false; // Set to true when you have a valid API key
   }
 
-  // Fetch competitions (tournaments)
+  /**
+   * Fetch competitions (tournaments)
+   * 
+   * Retrieves a list of available football competitions from the API
+   * Falls back to mock data if API is unavailable or useRealApi is false
+   * 
+   * @returns {Promise<Array>} Array of competition objects
+   */
   async getCompetitions() {
     if (!this.useRealApi) {
       console.log('Using fallback competition data');
@@ -128,7 +160,15 @@ class FootballApiService {
     }
   }
 
-  // Fetch matches for a specific competition
+  /**
+   * Fetch matches for a specific competition
+   * 
+   * Retrieves matches for a given competition ID from the API
+   * Falls back to filtered mock data if API is unavailable or useRealApi is false
+   * 
+   * @param {number} competitionId - ID of the competition to fetch matches for
+   * @returns {Promise<Array>} Array of match objects for the specified competition
+   */
   async getMatchesByCompetition(competitionId) {
     if (!this.useRealApi) {
       console.log(`Using fallback match data for competition ${competitionId}`);
@@ -154,7 +194,14 @@ class FootballApiService {
     }
   }
 
-  // Fetch all upcoming matches across competitions
+  /**
+   * Fetch all upcoming matches across competitions
+   * 
+   * Retrieves all upcoming matches from the API
+   * Falls back to mock data if API is unavailable or useRealApi is false
+   * 
+   * @returns {Promise<Array>} Array of upcoming match objects
+   */
   async getUpcomingMatches() {
     if (!this.useRealApi) {
       console.log('Using fallback match data for upcoming matches');
@@ -180,7 +227,15 @@ class FootballApiService {
     }
   }
 
-  // Fetch team information
+  /**
+   * Fetch team information
+   * 
+   * Retrieves detailed information about a specific team from the API
+   * Falls back to finding team in mock data if API is unavailable or useRealApi is false
+   * 
+   * @param {number} teamId - ID of the team to fetch information for
+   * @returns {Promise<Object|null>} Team object or null if not found
+   */
   async getTeam(teamId) {
     if (!this.useRealApi) {
       console.log(`Using fallback team data for team ${teamId}`);
@@ -203,14 +258,26 @@ class FootballApiService {
         throw new Error(`API error: ${response.status}`);
       }
 
-      return await response.json();
+      const data = await response.json();
+      return data;
     } catch (error) {
       console.error(`Error fetching team ${teamId}:`, error);
-      return null;
+      
+      // Fallback to finding team in mock data
+      const team = FALLBACK_DATA.matches.find(match => 
+        match.homeTeam.id === teamId || match.awayTeam.id === teamId
+      );
+      
+      return team ? (team.homeTeam.id === teamId ? team.homeTeam : team.awayTeam) : null;
     }
   }
 
-  // Format match data to our application's format
+  /**
+   * Format match data to our application's format
+   * 
+   * @param {Object} match - Match object from the API
+   * @returns {Object} Formatted match object
+   */
   formatMatch(match) {
     return {
       id: match.id,
