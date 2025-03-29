@@ -3,77 +3,153 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Football Tournament Prediction Game - MVP 1</title>
-    <link rel="stylesheet" href="dist/output.css">
+    <title>Predipto - Football Prediction Game</title>
+    <link rel="stylesheet" href="styles.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="icon" href="https://img.icons8.com/color/48/000000/soccer-ball.png" type="image/png">
 </head>
-<body class="bg-secondary-50 font-sans">
-    <div class="container mx-auto px-4 py-8 max-w-4xl">
-        <header class="text-center mb-8">
-            <h1 class="text-3xl font-bold text-primary-800 mb-2">Football Tournament Prediction Game</h1>
-            <p class="text-secondary-600">Predict match scores and earn points!</p>
+<body>
+    <!-- Authentication Content -->
+    <div id="auth-content" class="auth-container">
+        <div class="auth-box">
+            <div class="auth-header">
+                <h1>Predipto</h1>
+                <p>Predict football matches. Win points. Top the leaderboard.</p>
+            </div>
+            
+            <!-- Login Form -->
+            <div id="login-form-container" class="form-container">
+                <h2>Login</h2>
+                <form id="login-form">
+                    <div class="form-group">
+                        <label for="login-email">Email</label>
+                        <input type="email" id="login-email" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="login-password">Password</label>
+                        <input type="password" id="login-password" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Login</button>
+                </form>
+                <p class="form-toggle">
+                    Don't have an account? 
+                    <a href="#" id="register-toggle">Register</a>
+                </p>
+            </div>
+            
+            <!-- Register Form -->
+            <div id="register-form-container" class="form-container hidden">
+                <h2>Register</h2>
+                <form id="register-form">
+                    <div class="form-group">
+                        <label for="register-name">Name</label>
+                        <input type="text" id="register-name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="register-email">Email</label>
+                        <input type="email" id="register-email" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="register-password">Password</label>
+                        <input type="password" id="register-password" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Register</button>
+                </form>
+                <p class="form-toggle">
+                    Already have an account? 
+                    <a href="#" id="login-toggle">Login</a>
+                </p>
+            </div>
+            
+            <p class="auth-footer">
+                &copy; 2025 Predipto | Football prediction game
+            </p>
+        </div>
+    </div>
+    
+    <!-- Main Content (Hidden until logged in) -->
+    <div id="main-content" class="hidden">
+        <header class="main-header">
+            <div class="container">
+                <div class="header-content">
+                    <div class="logo">
+                        <img src="https://img.icons8.com/color/48/000000/soccer-ball.png" alt="Predipto Logo">
+                        <h1>Predipto</h1>
+                    </div>
+                    <div id="user-profile" class="user-profile">
+                        <!-- User profile will be rendered here -->
+                    </div>
+                </div>
+            </div>
         </header>
 
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <div class="lg:col-span-2">
-                <div class="bg-white rounded-lg shadow-md p-6 mb-6">
-                    <div class="flex justify-between items-center mb-4">
-                        <h2 class="text-xl font-semibold text-secondary-800">Upcoming Matches</h2>
-                        <div class="flex items-center">
-                            <span class="text-secondary-600 mr-2">Total Points:</span>
-                            <span id="total-points" class="text-xl font-bold text-primary-600">0</span>
+        <div class="container main-container">
+            <div class="content-grid">
+                <div class="matches-section">
+                    <div class="card">
+                        <div class="card-header">
+                            <h2>Upcoming Matches</h2>
+                            <div class="points-display">
+                                <span>Total Points:</span>
+                                <span id="total-points" class="points">0</span>
+                            </div>
+                        </div>
+                        
+                        <div id="competition-filter" class="competition-filter">
+                            <!-- Competition filter will be rendered here -->
+                        </div>
+                        
+                        <div id="matches-container" class="matches-container">
+                            <!-- Matches will be rendered here -->
+                            <div class="loading">
+                                <div class="spinner"></div>
+                                <p>Loading matches...</p>
+                            </div>
                         </div>
                     </div>
-                    <div id="matches-container" class="space-y-6">
-                        <!-- Matches will be rendered here -->
-                        <div class="text-center py-8">
-                            <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mx-auto mb-4"></div>
-                            <p class="text-secondary-500">Loading matches...</p>
+                </div>
+
+                <div class="sidebar">
+                    <div class="card sticky">
+                        <h2>Leaderboard</h2>
+                        <div id="leaderboard-container" class="leaderboard-container">
+                            <!-- Leaderboard will be rendered here -->
+                            <div class="loading">
+                                <p>Loading leaderboard...</p>
+                            </div>
                         </div>
+                    </div>
+                    
+                    <div class="card">
+                        <h2>Scoring Rules</h2>
+                        <ul class="scoring-rules">
+                            <li>
+                                <span class="points-badge success">20</span>
+                                <span>Exact score correct</span>
+                            </li>
+                            <li>
+                                <span class="points-badge success">15</span>
+                                <span>Goal difference correct</span>
+                            </li>
+                            <li>
+                                <span class="points-badge success">10</span>
+                                <span>Winner correct</span>
+                            </li>
+                            <li>
+                                <span class="points-badge error">-10</span>
+                                <span>Everything wrong</span>
+                            </li>
+                        </ul>
                     </div>
                 </div>
             </div>
 
-            <div class="lg:col-span-1">
-                <div class="bg-white rounded-lg shadow-md p-6 mb-6 sticky top-4">
-                    <h2 class="text-xl font-semibold text-secondary-800 mb-4">Leaderboard</h2>
-                    <div id="leaderboard-container">
-                        <!-- Leaderboard will be rendered here -->
-                        <div class="text-center py-4">
-                            <p class="text-secondary-500">No data available</p>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="bg-white rounded-lg shadow-md p-6">
-                    <h2 class="text-xl font-semibold text-secondary-800 mb-4">Scoring Rules</h2>
-                    <ul class="space-y-3">
-                        <li class="flex items-start">
-                            <span class="inline-flex items-center justify-center h-6 w-6 rounded-full bg-green-100 text-green-800 font-bold text-sm mr-2">20</span>
-                            <span class="text-secondary-700">Exact score correct</span>
-                        </li>
-                        <li class="flex items-start">
-                            <span class="inline-flex items-center justify-center h-6 w-6 rounded-full bg-green-100 text-green-800 font-bold text-sm mr-2">15</span>
-                            <span class="text-secondary-700">Goal difference correct</span>
-                        </li>
-                        <li class="flex items-start">
-                            <span class="inline-flex items-center justify-center h-6 w-6 rounded-full bg-green-100 text-green-800 font-bold text-sm mr-2">10</span>
-                            <span class="text-secondary-700">Winner correct</span>
-                        </li>
-                        <li class="flex items-start">
-                            <span class="inline-flex items-center justify-center h-6 w-6 rounded-full bg-red-100 text-red-800 font-bold text-sm mr-2">-10</span>
-                            <span class="text-secondary-700">Everything wrong</span>
-                        </li>
-                    </ul>
-                </div>
-            </div>
+            <footer class="main-footer">
+                <p>&copy; 2025 Predipto | Football prediction game</p>
+            </footer>
         </div>
-
-        <footer class="mt-12 text-center text-secondary-500 text-sm">
-            <p>&copy; 2025 Football Tournament Prediction Game - MVP 1</p>
-        </footer>
     </div>
 
-    <script src="src/app.js"></script>
+    <script type="module" src="src/app.js"></script>
 </body>
 </html>
