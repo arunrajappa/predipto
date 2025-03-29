@@ -622,79 +622,179 @@ const UI = {
         });
     },
     
-    // Render user profile
-    renderUserProfile(user, userData) {
-        const name = userData?.name || user.email;
+    // Render matches
+    renderMatches(matches) {
+        const container = document.getElementById('matches-container');
         
-        this.elements.userProfile.innerHTML = `
-            <span class="mr-2 text-secondary-700">${name}</span>
-            <div class="dropdown">
-                <button class="flex items-center justify-center w-8 h-8 bg-primary-100 text-primary-800 rounded-full">
-                    ${name.charAt(0).toUpperCase()}
-                </button>
-                <div class="dropdown-content" id="user-dropdown">
-                    <div class="py-1">
-                        <div class="dropdown-item font-medium">${name}</div>
-                        <div class="dropdown-item text-secondary-500">${user.email}</div>
-                        <hr class="my-1 border-secondary-200">
-                        <a href="#" id="logout-btn" class="dropdown-item text-accent-600">Logout</a>
+        if (!matches || matches.length === 0) {
+            container.innerHTML = `
+                <div class="alert alert-info text-center my-5">
+                    <i class="fas fa-info-circle me-2"></i>
+                    No upcoming matches found.
+                </div>
+            `;
+            return;
+        }
+        
+        container.innerHTML = '';
+        
+        matches.forEach(match => {
+            const matchElement = document.createElement('div');
+            matchElement.className = 'match-card';
+            matchElement.dataset.matchId = match.id;
+            
+            // Get user prediction if available
+            const prediction = dataService.getUserPrediction(match.id);
+            const predictionHtml = prediction 
+                ? `
+                    <div class="prediction-badge">
+                        <span class="badge bg-primary">
+                            <i class="fas fa-check-circle me-1"></i>
+                            Your prediction: ${prediction.homeScore} - ${prediction.awayScore}
+                        </span>
+                    </div>
+                ` 
+                : '';
+            
+            matchElement.innerHTML = `
+                <div class="match-header">
+                    <div class="competition-name">
+                        <i class="fas fa-trophy me-2"></i>${match.competition}
+                        ${match.group ? `<span class="badge bg-secondary ms-2">${match.group}</span>` : ''}
+                    </div>
+                    <div class="match-date">
+                        <i class="far fa-calendar-alt me-1"></i> ${match.date} 
+                        <i class="far fa-clock ms-2 me-1"></i> ${match.time}
                     </div>
                 </div>
-            </div>
-        `;
-        
-        // Toggle dropdown
-        const dropdownBtn = this.elements.userProfile.querySelector("button");
-        const dropdownContent = document.getElementById("user-dropdown");
-        
-        dropdownBtn.addEventListener("click", () => {
-            dropdownContent.classList.toggle("hidden");
+                
+                <div class="match-details">
+                    <div class="team">
+                        <img src="${match.teamALogo || 'https://via.placeholder.com/60?text=' + match.teamA.substring(0, 2)}" alt="${match.teamA}" class="team-flag">
+                        <div class="team-name">${match.teamA}</div>
+                    </div>
+                    
+                    <div class="versus">VS</div>
+                    
+                    <div class="team">
+                        <img src="${match.teamBLogo || 'https://via.placeholder.com/60?text=' + match.teamB.substring(0, 2)}" alt="${match.teamB}" class="team-flag">
+                        <div class="team-name">${match.teamB}</div>
+                    </div>
+                </div>
+                
+                ${predictionHtml}
+                
+                <div class="score-inputs">
+                    <div class="team-score">
+                        <label for="home-score-${match.id}">${match.teamA}</label>
+                        <input type="number" id="home-score-${match.id}" min="0" max="20" value="${prediction ? prediction.homeScore : ''}" ${prediction ? 'disabled' : ''}>
+                    </div>
+                    
+                    <div class="score-separator">-</div>
+                    
+                    <div class="team-score">
+                        <label for="away-score-${match.id}">${match.teamB}</label>
+                        <input type="number" id="away-score-${match.id}" min="0" max="20" value="${prediction ? prediction.awayScore : ''}" ${prediction ? 'disabled' : ''}>
+                    </div>
+                </div>
+                
+                <div class="text-center mt-3">
+                    ${prediction 
+                        ? '<button class="btn btn-secondary disabled w-100"><i class="fas fa-lock me-2"></i>Prediction Locked</button>' 
+                        : `<button class="btn btn-primary w-100 predict-btn" data-match-id="${match.id}"><i class="fas fa-check-circle me-2"></i>Submit Prediction</button>`
+                    }
+                </div>
+            `;
+            
+            container.appendChild(matchElement);
         });
         
-        // Close dropdown when clicking outside
-        document.addEventListener("click", (e) => {
-            if (!dropdownBtn.contains(e.target) && !dropdownContent.contains(e.target)) {
-                dropdownContent.classList.add("hidden");
-            }
-        });
-        
-        // Logout button
-        document.getElementById("logout-btn").addEventListener("click", async (e) => {
-            e.preventDefault();
-            await authService.logout();
+        // Add event listeners to predict buttons
+        const predictButtons = document.querySelectorAll('.predict-btn');
+        predictButtons.forEach(button => {
+            button.addEventListener('click', async (e) => {
+                const matchId = e.target.dataset.matchId;
+                const homeScoreInput = document.getElementById(`home-score-${matchId}`);
+                const awayScoreInput = document.getElementById(`away-score-${matchId}`);
+                
+                if (!homeScoreInput.value || !awayScoreInput.value) {
+                    this.showMessage(
+                        e.target.closest('.match-card'),
+                        'Please enter scores for both teams',
+                        'error'
+                    );
+                    return;
+                }
+                
+                const homeScore = parseInt(homeScoreInput.value);
+                const awayScore = parseInt(awayScoreInput.value);
+                
+                try {
+                    await dataService.savePrediction(matchId, homeScore, awayScore);
+                    
+                    // Re-render matches to update UI
+                    const matches = await footballAPIService.getMatches();
+                    this.renderMatches(matches);
+                    
+                    // Update points
+                    const userData = await authService.getUserData(auth.currentUser.uid);
+                    document.getElementById('total-points').textContent = userData.points || 0;
+                } catch (error) {
+                    console.error('Error saving prediction:', error);
+                    this.showMessage(
+                        e.target.closest('.match-card'),
+                        'Error saving prediction. Please try again.',
+                        'error'
+                    );
+                }
+            });
         });
     },
     
     // Render competition filter
     renderCompetitionFilter(competitions) {
+        const container = document.getElementById('competition-filter');
+        
+        if (!competitions || competitions.length === 0) {
+            container.innerHTML = '';
+            return;
+        }
+        
         let html = `
-            <div class="flex flex-wrap items-center gap-2">
-                <span class="text-sm font-medium text-secondary-700">Filter by:</span>
-                <button class="competition-btn badge badge-primary active" data-code="all">All Competitions</button>
+            <div class="filter-buttons">
+                <button class="filter-btn active" data-code="all">
+                    <i class="fas fa-globe me-1"></i> All Competitions
+                </button>
         `;
         
-        competitions.forEach(comp => {
+        competitions.forEach(competition => {
             html += `
-                <button class="competition-btn badge badge-secondary" data-code="${comp.code}">
-                    ${comp.name}
+                <button class="filter-btn" data-code="${competition.code}">
+                    <i class="fas fa-trophy me-1"></i> ${competition.name}
                 </button>
             `;
         });
         
-        html += `</div>`;
-        this.elements.competitionFilter.innerHTML = html;
+        html += '</div>';
+        container.innerHTML = html;
         
-        // Add event listeners to competition buttons
-        const competitionBtns = document.querySelectorAll(".competition-btn");
-        competitionBtns.forEach(btn => {
-            btn.addEventListener("click", async () => {
-                // Update active button
-                competitionBtns.forEach(b => {
-                    b.classList.remove("badge-primary", "active");
-                    b.classList.add("badge-secondary");
-                });
-                btn.classList.remove("badge-secondary");
-                btn.classList.add("badge-primary", "active");
+        // Add event listeners
+        const filterButtons = document.querySelectorAll('.filter-btn');
+        filterButtons.forEach(btn => {
+            btn.addEventListener('click', async () => {
+                // Update active state
+                filterButtons.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                
+                // Show loading state
+                document.getElementById('matches-container').innerHTML = `
+                    <div class="loading text-center py-5">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                        <p class="mt-3">Loading matches...</p>
+                    </div>
+                `;
                 
                 // Filter matches
                 const code = btn.dataset.code;
@@ -707,172 +807,100 @@ const UI = {
         });
     },
     
-    // Render matches
-    async renderMatches(matches) {
-        if (!matches || matches.length === 0) {
-            this.elements.matchesContainer.innerHTML = `
-                <div class="text-center py-8">
-                    <p class="text-secondary-500">No upcoming matches found.</p>
-                </div>
-            `;
-            return;
-        }
-        
-        let html = "";
-        
-        for (const match of matches) {
-            // Get user prediction
-            const prediction = await dataService.getUserPrediction(match.id);
-            
-            // Get match result
-            const result = await dataService.getMatchResult(match.id);
-            
-            html += `
-                <div class="match-card ${prediction ? 'match-card-active' : ''}">
-                    <div class="flex justify-between items-center mb-3">
-                        <div>
-                            <span class="badge badge-primary">${match.competition}</span>
-                            ${match.group ? `<span class="badge badge-secondary ml-1">${match.group}</span>` : ''}
-                        </div>
-                        <div class="text-sm text-secondary-500">
-                            ${match.date} • ${match.time}
-                        </div>
-                    </div>
-                    
-                    <div class="flex items-center justify-between">
-                        <div class="flex items-center flex-1">
-                            <div class="w-8 h-8 mr-2">
-                                ${match.teamALogo ? `<img src="${match.teamALogo}" alt="${match.teamA}" class="w-full h-full object-contain">` : ''}
-                            </div>
-                            <span class="font-medium">${match.teamA}</span>
-                        </div>
-                        
-                        <div class="mx-4">
-                            <div class="flex items-center justify-center">
-                                <input type="number" min="0" max="99" class="input-number home-score" 
-                                    data-match-id="${match.id}" 
-                                    value="${prediction ? prediction.homeScore : ''}" 
-                                    ${result ? 'disabled' : ''}>
-                                <span class="mx-2 text-xl">:</span>
-                                <input type="number" min="0" max="99" class="input-number away-score" 
-                                    data-match-id="${match.id}" 
-                                    value="${prediction ? prediction.awayScore : ''}" 
-                                    ${result ? 'disabled' : ''}>
-                            </div>
-                            
-                            ${result ? `
-                                <div class="text-center mt-2">
-                                    <span class="text-sm font-medium">Result: ${result.homeScore} - ${result.awayScore}</span>
-                                </div>
-                            ` : ''}
-                            
-                            ${!result ? `
-                                <div class="text-center mt-2">
-                                    <button class="btn btn-primary save-prediction" data-match-id="${match.id}">
-                                        ${prediction ? 'Update Prediction' : 'Save Prediction'}
-                                    </button>
-                                </div>
-                            ` : ''}
-                        </div>
-                        
-                        <div class="flex items-center justify-end flex-1">
-                            <span class="font-medium">${match.teamB}</span>
-                            <div class="w-8 h-8 ml-2">
-                                ${match.teamBLogo ? `<img src="${match.teamBLogo}" alt="${match.teamB}" class="w-full h-full object-contain">` : ''}
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="prediction-status mt-2" id="status-${match.id}"></div>
-                </div>
-            `;
-        }
-        
-        this.elements.matchesContainer.innerHTML = html;
-        
-        // Add event listeners to save prediction buttons
-        const saveBtns = document.querySelectorAll(".save-prediction");
-        saveBtns.forEach(btn => {
-            btn.addEventListener("click", async () => {
-                const matchId = btn.dataset.matchId;
-                const homeScoreInput = document.querySelector(`.home-score[data-match-id="${matchId}"]`);
-                const awayScoreInput = document.querySelector(`.away-score[data-match-id="${matchId}"]`);
-                
-                const homeScore = parseInt(homeScoreInput.value);
-                const awayScore = parseInt(awayScoreInput.value);
-                
-                if (isNaN(homeScore) || isNaN(awayScore)) {
-                    this.showMessage(document.getElementById(`status-${matchId}`), "Please enter valid scores", "error");
-                    return;
-                }
-                
-                const result = await dataService.savePrediction(matchId, homeScore, awayScore);
-                
-                if (result.success) {
-                    this.showMessage(document.getElementById(`status-${matchId}`), "Prediction saved successfully!", "success");
-                    btn.textContent = "Update Prediction";
-                    document.querySelector(`.match-card[data-match-id="${matchId}"]`).classList.add("match-card-active");
-                } else {
-                    this.showMessage(document.getElementById(`status-${matchId}`), result.error, "error");
-                }
-            });
-        });
-    },
-    
     // Render leaderboard
     renderLeaderboard(leaderboard) {
+        const container = document.getElementById('leaderboard-container');
+        
         if (!leaderboard || leaderboard.length === 0) {
-            this.elements.leaderboardContainer.innerHTML = `
-                <div class="text-center py-4">
-                    <p class="text-secondary-500">No leaderboard data available.</p>
+            container.innerHTML = `
+                <div class="alert alert-info text-center">
+                    <i class="fas fa-info-circle me-2"></i>
+                    No leaderboard data available.
                 </div>
             `;
             return;
         }
         
-        let html = `
-            <div class="space-y-2">
-        `;
+        let html = '';
         
         leaderboard.forEach((user, index) => {
+            const rank = index + 1;
+            const rankClass = rank <= 3 ? `rank-${rank}` : '';
+            
             html += `
-                <div class="flex items-center p-2 ${index === 0 ? 'bg-primary-50 rounded-md' : ''}">
-                    <div class="flex-shrink-0 w-8 text-center">
-                        <span class="font-bold ${index < 3 ? 'text-primary-600' : 'text-secondary-600'}">${index + 1}</span>
-                    </div>
-                    <div class="flex-grow ml-2">
-                        <span class="font-medium">${user.name}</span>
-                    </div>
-                    <div class="flex-shrink-0 font-bold text-primary-600">
-                        ${user.points}
-                    </div>
+                <div class="leaderboard-item">
+                    <div class="leaderboard-rank ${rankClass}">${rank}</div>
+                    <div class="leaderboard-name">${user.name}</div>
+                    <div class="leaderboard-points">${user.points} pts</div>
                 </div>
             `;
         });
         
-        html += `</div>`;
-        this.elements.leaderboardContainer.innerHTML = html;
+        container.innerHTML = html;
+    },
+    
+    // Render user profile
+    renderUserProfile(user, userData) {
+        const container = document.getElementById('user-profile');
+        
+        if (!user) {
+            container.innerHTML = '';
+            return;
+        }
+        
+        const points = userData?.points || 0;
+        const rank = userData?.rank || '-';
+        
+        container.innerHTML = `
+            <div class="dropdown">
+                <button class="btn btn-light dropdown-toggle d-flex align-items-center" type="button" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                    <div class="avatar me-2">
+                        <i class="fas fa-user-circle fa-lg"></i>
+                    </div>
+                    <div class="user-info">
+                        <div class="user-name">${user.displayName || user.email}</div>
+                        <div class="user-stats small">
+                            <span class="badge bg-success me-1">${points} pts</span>
+                            <span class="badge bg-secondary">Rank: ${rank}</span>
+                        </div>
+                    </div>
+                </button>
+                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+                    <li><a class="dropdown-item" href="#"><i class="fas fa-user me-2"></i>Profile</a></li>
+                    <li><a class="dropdown-item" href="#"><i class="fas fa-cog me-2"></i>Settings</a></li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li><a class="dropdown-item" href="#" id="logout-btn"><i class="fas fa-sign-out-alt me-2"></i>Logout</a></li>
+                </ul>
+            </div>
+        `;
+        
+        // Add event listener to logout button
+        document.getElementById('logout-btn').addEventListener('click', async (e) => {
+            e.preventDefault();
+            try {
+                await authService.logout();
+            } catch (error) {
+                console.error('Error logging out:', error);
+            }
+        });
     },
     
     // Show message
     showMessage(container, message, type) {
-        const statusDiv = document.createElement("div");
-        statusDiv.className = `status-message status-${type}`;
-        statusDiv.textContent = message;
+        const messageElement = document.createElement('div');
+        messageElement.className = `status-message status-${type} mt-3`;
+        messageElement.innerHTML = `
+            <i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-circle'} me-2"></i>
+            ${message}
+        `;
         
-        // Remove any existing status messages
-        const existingStatus = container.querySelector(".status-message");
-        if (existingStatus) {
-            existingStatus.remove();
-        }
+        container.appendChild(messageElement);
         
-        container.appendChild(statusDiv);
-        
-        // Remove the message after 5 seconds
+        // Remove message after 5 seconds
         setTimeout(() => {
-            statusDiv.remove();
+            messageElement.remove();
         }, 5000);
-    }
+    },
 };
 
 // Initialize the app

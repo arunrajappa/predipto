@@ -4,64 +4,77 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Predipto - Football Prediction Game</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Custom CSS -->
     <link rel="stylesheet" href="styles.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="icon" href="https://img.icons8.com/color/48/000000/soccer-ball.png" type="image/png">
 </head>
 <body>
     <!-- Authentication Content -->
     <div id="auth-content" class="auth-container">
         <div class="auth-box">
-            <div class="auth-header">
-                <h1>Predipto</h1>
-                <p>Predict football matches. Win points. Top the leaderboard.</p>
+            <div class="auth-header text-center">
+                <div class="logo-container mb-4">
+                    <img src="https://img.icons8.com/color/96/000000/soccer-ball.png" alt="Predipto Logo" class="logo-img">
+                    <h1 class="app-title">Predipto</h1>
+                </div>
+                <p class="lead">Predict football matches. Win points. Top the leaderboard.</p>
             </div>
             
             <!-- Login Form -->
             <div id="login-form-container" class="form-container">
-                <h2>Login</h2>
+                <h2 class="text-center mb-4">Login</h2>
                 <form id="login-form">
-                    <div class="form-group">
-                        <label for="login-email">Email</label>
-                        <input type="email" id="login-email" required>
+                    <div class="form-floating mb-3">
+                        <input type="email" class="form-control" id="login-email" placeholder="name@example.com" required>
+                        <label for="login-email"><i class="fas fa-envelope me-2"></i>Email address</label>
                     </div>
-                    <div class="form-group">
-                        <label for="login-password">Password</label>
-                        <input type="password" id="login-password" required>
+                    <div class="form-floating mb-4">
+                        <input type="password" class="form-control" id="login-password" placeholder="Password" required>
+                        <label for="login-password"><i class="fas fa-lock me-2"></i>Password</label>
                     </div>
-                    <button type="submit" class="btn btn-primary">Login</button>
+                    <button type="submit" class="btn btn-primary w-100 py-3 mb-3">
+                        <i class="fas fa-sign-in-alt me-2"></i>Login
+                    </button>
                 </form>
-                <p class="form-toggle">
+                <p class="form-toggle text-center">
                     Don't have an account? 
-                    <a href="#" id="register-toggle">Register</a>
+                    <a href="#" id="register-toggle" class="link-primary">Register</a>
                 </p>
             </div>
             
             <!-- Register Form -->
             <div id="register-form-container" class="form-container hidden">
-                <h2>Register</h2>
+                <h2 class="text-center mb-4">Register</h2>
                 <form id="register-form">
-                    <div class="form-group">
-                        <label for="register-name">Name</label>
-                        <input type="text" id="register-name" required>
+                    <div class="form-floating mb-3">
+                        <input type="text" class="form-control" id="register-name" placeholder="Your Name" required>
+                        <label for="register-name"><i class="fas fa-user me-2"></i>Full Name</label>
                     </div>
-                    <div class="form-group">
-                        <label for="register-email">Email</label>
-                        <input type="email" id="register-email" required>
+                    <div class="form-floating mb-3">
+                        <input type="email" class="form-control" id="register-email" placeholder="name@example.com" required>
+                        <label for="register-email"><i class="fas fa-envelope me-2"></i>Email address</label>
                     </div>
-                    <div class="form-group">
-                        <label for="register-password">Password</label>
-                        <input type="password" id="register-password" required>
+                    <div class="form-floating mb-4">
+                        <input type="password" class="form-control" id="register-password" placeholder="Password" required>
+                        <label for="register-password"><i class="fas fa-lock me-2"></i>Password</label>
                     </div>
-                    <button type="submit" class="btn btn-primary">Register</button>
+                    <button type="submit" class="btn btn-primary w-100 py-3 mb-3">
+                        <i class="fas fa-user-plus me-2"></i>Register
+                    </button>
                 </form>
-                <p class="form-toggle">
+                <p class="form-toggle text-center">
                     Already have an account? 
-                    <a href="#" id="login-toggle">Login</a>
+                    <a href="#" id="login-toggle" class="link-primary">Login</a>
                 </p>
             </div>
             
-            <p class="auth-footer">
+            <p class="auth-footer text-center mt-4">
                 &copy; 2025 Predipto | Football prediction game
             </p>
         </div>
@@ -69,87 +82,105 @@
     
     <!-- Main Content (Hidden until logged in) -->
     <div id="main-content" class="hidden">
-        <header class="main-header">
+        <nav class="navbar navbar-expand-lg navbar-dark">
             <div class="container">
-                <div class="header-content">
-                    <div class="logo">
-                        <img src="https://img.icons8.com/color/48/000000/soccer-ball.png" alt="Predipto Logo">
-                        <h1>Predipto</h1>
-                    </div>
-                    <div id="user-profile" class="user-profile">
-                        <!-- User profile will be rendered here -->
-                    </div>
+                <a class="navbar-brand d-flex align-items-center" href="#">
+                    <img src="https://img.icons8.com/color/48/000000/soccer-ball.png" alt="Predipto Logo" class="me-2">
+                    <span>Predipto</span>
+                </a>
+                <div id="user-profile" class="ms-auto user-profile">
+                    <!-- User profile will be rendered here -->
                 </div>
             </div>
-        </header>
+        </nav>
 
-        <div class="container main-container">
-            <div class="content-grid">
-                <div class="matches-section">
-                    <div class="card">
-                        <div class="card-header">
-                            <h2>Upcoming Matches</h2>
+        <div class="container main-container py-4">
+            <div class="row">
+                <div class="col-lg-8 mb-4 mb-lg-0">
+                    <div class="card shadow-sm h-100">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <h2 class="mb-0">Upcoming Matches</h2>
                             <div class="points-display">
                                 <span>Total Points:</span>
-                                <span id="total-points" class="points">0</span>
+                                <span id="total-points" class="points badge bg-success fs-6">0</span>
                             </div>
                         </div>
                         
-                        <div id="competition-filter" class="competition-filter">
+                        <div id="competition-filter" class="competition-filter px-3 pt-3">
                             <!-- Competition filter will be rendered here -->
                         </div>
                         
-                        <div id="matches-container" class="matches-container">
+                        <div id="matches-container" class="matches-container p-3">
                             <!-- Matches will be rendered here -->
-                            <div class="loading">
-                                <div class="spinner"></div>
-                                <p>Loading matches...</p>
+                            <div class="loading text-center py-5">
+                                <div class="spinner-border text-primary" role="status">
+                                    <span class="visually-hidden">Loading...</span>
+                                </div>
+                                <p class="mt-3">Loading matches...</p>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <div class="sidebar">
-                    <div class="card sticky">
-                        <h2>Leaderboard</h2>
-                        <div id="leaderboard-container" class="leaderboard-container">
-                            <!-- Leaderboard will be rendered here -->
-                            <div class="loading">
-                                <p>Loading leaderboard...</p>
+                <div class="col-lg-4">
+                    <div class="row">
+                        <div class="col-12 mb-4">
+                            <div class="card shadow-sm sticky-top" style="top: 20px; z-index: 100;">
+                                <div class="card-header">
+                                    <h2 class="mb-0">Leaderboard</h2>
+                                </div>
+                                <div id="leaderboard-container" class="leaderboard-container p-3">
+                                    <!-- Leaderboard will be rendered here -->
+                                    <div class="loading text-center py-3">
+                                        <div class="spinner-border text-primary" role="status">
+                                            <span class="visually-hidden">Loading...</span>
+                                        </div>
+                                        <p class="mt-3">Loading leaderboard...</p>
+                                    </div>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                    
-                    <div class="card">
-                        <h2>Scoring Rules</h2>
-                        <ul class="scoring-rules">
-                            <li>
-                                <span class="points-badge success">20</span>
-                                <span>Exact score correct</span>
-                            </li>
-                            <li>
-                                <span class="points-badge success">15</span>
-                                <span>Goal difference correct</span>
-                            </li>
-                            <li>
-                                <span class="points-badge success">10</span>
-                                <span>Winner correct</span>
-                            </li>
-                            <li>
-                                <span class="points-badge error">-10</span>
-                                <span>Everything wrong</span>
-                            </li>
-                        </ul>
+                        
+                        <div class="col-12">
+                            <div class="card shadow-sm">
+                                <div class="card-header">
+                                    <h2 class="mb-0">Scoring Rules</h2>
+                                </div>
+                                <div class="card-body">
+                                    <ul class="scoring-rules list-group list-group-flush">
+                                        <li class="list-group-item d-flex align-items-center">
+                                            <span class="points-badge badge bg-success me-3">20</span>
+                                            <span>Exact score correct</span>
+                                        </li>
+                                        <li class="list-group-item d-flex align-items-center">
+                                            <span class="points-badge badge bg-success me-3">15</span>
+                                            <span>Goal difference correct</span>
+                                        </li>
+                                        <li class="list-group-item d-flex align-items-center">
+                                            <span class="points-badge badge bg-success me-3">10</span>
+                                            <span>Winner correct</span>
+                                        </li>
+                                        <li class="list-group-item d-flex align-items-center">
+                                            <span class="points-badge badge bg-danger me-3">-10</span>
+                                            <span>Everything wrong</span>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
 
-            <footer class="main-footer">
+            <footer class="mt-5 text-center text-muted">
                 <p>&copy; 2025 Predipto | Football prediction game</p>
             </footer>
         </div>
     </div>
 
+    <!-- Bootstrap JS Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Custom JS -->
     <script type="module" src="src/app.js"></script>
 </body>
 </html>
