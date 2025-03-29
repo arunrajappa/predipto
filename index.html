@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Football Tournament Prediction Game - MVP 0</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Football Tournament Prediction Game</h1>
+            <p class="subtitle">Predict match scores and earn points!</p>
+        </header>
+
+        <main>
+            <section id="match-info" class="card">
+                <h2>Upcoming Match</h2>
+                <div class="match-details">
+                    <div class="team team-a">
+                        <img src="https://via.placeholder.com/50?text=GER" alt="Germany Flag" class="team-flag">
+                        <h3>Germany</h3>
+                    </div>
+                    <div class="versus">VS</div>
+                    <div class="team team-b">
+                        <img src="https://via.placeholder.com/50?text=FRA" alt="France Flag" class="team-flag">
+                        <h3>France</h3>
+                    </div>
+                </div>
+                <p class="match-date">March 30, 2025 | 19:00 UTC</p>
+            </section>
+
+            <section id="prediction-section" class="card">
+                <h2>Make Your Prediction</h2>
+                <p>Submit your score prediction before the match starts.</p>
+                <form id="prediction-form">
+                    <div class="score-inputs">
+                        <div class="team-score">
+                            <label for="team-a-score">Germany</label>
+                            <input type="number" id="team-a-score" min="0" value="0" required>
+                        </div>
+                        <div class="score-separator">-</div>
+                        <div class="team-score">
+                            <label for="team-b-score">France</label>
+                            <input type="number" id="team-b-score" min="0" value="0" required>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Submit Prediction</button>
+                </form>
+                <div id="prediction-status" class="status-message hidden"></div>
+            </section>
+
+            <section id="admin-section" class="card">
+                <h2>Admin: Enter Match Result</h2>
+                <p>Enter the final score after the match has concluded.</p>
+                <form id="result-form">
+                    <div class="score-inputs">
+                        <div class="team-score">
+                            <label for="team-a-result">Germany</label>
+                            <input type="number" id="team-a-result" min="0" value="0" required>
+                        </div>
+                        <div class="score-separator">-</div>
+                        <div class="team-score">
+                            <label for="team-b-result">France</label>
+                            <input type="number" id="team-b-result" min="0" value="0" required>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-secondary">Submit Result</button>
+                </form>
+                <div id="result-status" class="status-message hidden"></div>
+            </section>
+
+            <section id="score-section" class="card hidden">
+                <h2>Your Score</h2>
+                <div class="score-display">
+                    <div class="prediction-display">
+                        <h3>Your Prediction</h3>
+                        <p id="prediction-display">-</p>
+                    </div>
+                    <div class="result-display">
+                        <h3>Actual Result</h3>
+                        <p id="result-display">-</p>
+                    </div>
+                    <div class="points-display">
+                        <h3>Points Earned</h3>
+                        <p id="points-display">-</p>
+                        <p id="points-explanation"></p>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <footer>
+            <p>&copy; 2025 Football Tournament Prediction Game - MVP 0</p>
+        </footer>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
