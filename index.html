@@ -88,6 +88,9 @@
                     <img src="https://img.icons8.com/color/48/000000/soccer-ball.png" alt="Predipto Logo" class="me-2">
                     <span>Predipto</span>
                 </a>
+                <button id="admin-panel-toggle" class="btn btn-outline-light me-3 hidden">
+                    <i class="fas fa-cog me-2"></i>Admin Panel
+                </button>
                 <div id="user-profile" class="ms-auto user-profile">
                     <!-- User profile will be rendered here -->
                 </div>
@@ -165,6 +168,39 @@
                                             <span>Everything wrong</span>
                                         </li>
                                     </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-4">
+                <div class="card shadow-sm h-100">
+                    <div class="card-header">
+                        <h2 class="mb-0">Leaderboard</h2>
+                    </div>
+                    <div class="card-body">
+                        <div id="leaderboard-container" class="leaderboard-container">
+                            <div class="text-center py-4">
+                                <div class="spinner-border text-primary" role="status">
+                                    <span class="visually-hidden">Loading...</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Bonus Questions Section (MVP3) -->
+                <div class="card shadow-sm mt-4">
+                    <div class="card-header">
+                        <h2 class="mb-0">Bonus Questions</h2>
+                    </div>
+                    <div class="card-body">
+                        <div id="bonus-questions-container" class="bonus-questions-container">
+                            <div class="text-center py-4">
+                                <div class="spinner-border text-primary" role="status">
+                                    <span class="visually-hidden">Loading...</span>
                                 </div>
                             </div>
                         </div>

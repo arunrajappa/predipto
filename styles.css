@@ -427,3 +427,199 @@ input[type="number"]:focus {
         justify-content: center;
     }
 }
+
+/* Admin Panel Styles */
+.admin-panel {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    padding: 2rem;
+    overflow-y: auto;
+}
+
+.admin-panel .card {
+    width: 100%;
+    max-width: 1000px;
+    max-height: 90vh;
+    overflow-y: auto;
+    animation: fadeIn 0.3s ease-out;
+}
+
+.admin-panel .card-header h3 {
+    margin-bottom: 0;
+    font-size: 1.25rem;
+    color: var(--primary-color);
+}
+
+.admin-panel .table th {
+    font-weight: 600;
+    color: var(--dark-color);
+}
+
+.admin-panel .team-icon {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 1px solid var(--light-color);
+}
+
+.admin-panel .form-check-input:checked {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+}
+
+.admin-panel .btn-group .btn {
+    padding: 0.25rem 0.5rem;
+}
+
+.admin-panel .btn-group .btn i {
+    font-size: 0.875rem;
+}
+
+.admin-badge {
+    background-color: var(--accent-color);
+    color: white;
+    font-size: 0.75rem;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    margin-left: 0.5rem;
+}
+
+/* Admin Modal Styles */
+.admin-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1100;
+    animation: fadeIn 0.2s ease-out;
+}
+
+.admin-modal-content {
+    background-color: white;
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow);
+    width: 90%;
+    max-width: 500px;
+    max-height: 90vh;
+    overflow-y: auto;
+    animation: zoomIn 0.3s ease-out;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes zoomIn {
+    from {
+        opacity: 0;
+        transform: scale(0.9);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+.admin-modal-header {
+    padding: 1rem 1.5rem;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.admin-modal-header h4 {
+    margin: 0;
+    font-weight: 600;
+}
+
+.admin-modal-body {
+    padding: 1.5rem;
+}
+
+.admin-modal-footer {
+    padding: 1rem 1.5rem;
+    border-top: 1px solid rgba(0, 0, 0, 0.1);
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.5rem;
+}
+
+/* Bonus Questions Styles */
+.bonus-question-card {
+    border-left: 4px solid var(--accent-color);
+    margin-bottom: 1.5rem;
+    transition: transform 0.2s;
+}
+
+.bonus-question-card:hover {
+    transform: translateY(-2px);
+}
+
+.bonus-question-card .card-header {
+    background-color: rgba(var(--accent-color-rgb), 0.1);
+    border-bottom: none;
+}
+
+.bonus-question-card .card-title {
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+}
+
+.bonus-question-card .card-subtitle {
+    font-size: 0.875rem;
+    color: var(--text-muted);
+}
+
+.bonus-question-card .form-check {
+    margin-bottom: 0.5rem;
+}
+
+.bonus-question-card .form-check-input:checked {
+    background-color: var(--accent-color);
+    border-color: var(--accent-color);
+}
+
+.bonus-question-card .reward-badge {
+    background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+    color: white;
+    font-size: 0.75rem;
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    display: inline-flex;
+    align-items: center;
+    margin-bottom: 0.5rem;
+}
+
+.bonus-question-card .reward-badge i {
+    margin-right: 0.25rem;
+}
+
+.bonus-question-card .due-date {
+    font-size: 0.875rem;
+    color: var(--text-muted);
+    margin-bottom: 0.5rem;
+}
+
+.bonus-question-card .due-date i {
+    margin-right: 0.25rem;
+}
+
+.bonus-question-card .btn-submit {
+    margin-top: 1rem;
+}
